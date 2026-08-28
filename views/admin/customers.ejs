@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Directory - Techkart Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <h2>Techkart Admin</h2>
+        <nav>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/products/add">Add Product</a>
+            <a href="/admin/orders">Orders</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Customer Directory</h1>
+
+        <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Email Address</th>
+                    <th>Phone Number</th>
+                    <th>Registration Date</th>
+                    <th>Total Orders</th>
+                    <th>Total Spent</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (typeof customers !=='undefined' && customers && customers.length> 0) { %>
+                    <% customers.forEach(cust=> { %>
+                        <tr>
+                            <td>
+                                <%= cust.name %>
+                            </td>
+                            <td>
+                                <%= cust.email %>
+                            </td>
+                            <td>
+                                <%= cust.phone || 'N/A' %>
+                            </td>
+                            <td>
+                                <%= cust.createdAt ? new Date(cust.createdAt).toLocaleDateString() : '' %>
+                            </td>
+                            <td>
+                                <%= cust.ordersCount || 0 %>
+                            </td>
+                            <td>₹<%= cust.totalSpent || 0 %>
+                            </td>
+                        </tr>
+                        <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6">No customers registered yet.</td>
+                                </tr>
+                                <% } %>
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <p>&copy; <%= new Date().getFullYear() %> Techkart Admin Control.</p>
+    </footer>
+
+</body>
+
+</html>

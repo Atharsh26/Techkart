@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techkart - E-Commerce Gadget Store</title>
+    <!-- rel="stylesheet" href="/css/style.css"> -->
+</head>
+
+<body>
+
+    <!-- Header / Navigation -->
+    <header>
+        <div class="logo">
+            <a href="/">Techkart</a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">All Products</a></li>
+                <li><a href="/products?category=smartphones">Smartphones</a></li>
+                <li><a href="/products?category=laptops">Laptops</a></li>
+                <li><a href="/products?category=audio">Audio</a></li>
+                <li><a href="/products?category=wearables">Wearables</a></li>
+                <li><a href="/products?category=gaming">Gaming</a></li>
+                <li><a href="/my-orders">My Orders</a></li>
+            </ul>
+        </nav>
+        <div class="nav-actions">
+            <!-- Search Form -->
+            <form action="/products" method="GET">
+                <input type="text" name="search" placeholder="Search gadgets..."
+                    value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+                <button type="submit">Search</button>
+            </form>
+
+            <a href="/cart">Cart (<%= (typeof cart !=='undefined' && cart && cart.items) ? cart.items.length : 0 %>)</a>
+
+            <% if (typeof user !=='undefined' && user) { %>
+                <span>Welcome, <%= user.name %></span>
+                <a href="/logout">Logout</a>
+                <% } else { %>
+                    <a href="/login">Login</a>
+                    <a href="/register">Register</a>
+                    <% } %>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Discover The Future Of Gadgets</h1>
+            <p>Shop latest smartphones, ultra laptops, noise cancelling headphones, and gaming gear.</p>
+            <a href="/products">Shop Now</a>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="categories">
+            <h2>Shop By Category</h2>
+            <div class="category-grid">
+                <div class="category-item">
+                    <a href="/products?category=smartphones">
+                        <h3>Smartphones</h3>
+                    </a>
+                </div>
+                <div class="category-item">
+                    <a href="/products?category=laptops">
+                        <h3>Laptops</h3>
+                    </a>
+                </div>
+                <div class="category-item">
+                    <a href="/products?category=audio">
+                        <h3>Audio & Headphones</h3>
+                    </a>
+                </div>
+                <div class="category-item">
+                    <a href="/products?category=wearables">
+                        <h3>Smartwatches</h3>
+                    </a>
+                </div>
+                <div class="category-item">
+                    <a href="/products?category=gaming">
+                        <h3>Gaming Gear</h3>
+                    </a>
+                </div>
+                <div class="category-item">
+                    <a href="/products?category=accessories">
+                        <h3>Accessories</h3>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products Section -->
+        <section class="featured-products">
+            <h2>Featured Gadgets</h2>
+            <a href="/products">View All</a>
+
+            <div class="product-grid">
+                <% if (typeof products !=='undefined' && products && products.length> 0) { %>
+                    <% products.forEach(product=> { %>
+                        <div class="product-card">
+                            <img src="<%= product.image || '/images/default-gadget.png' %>" alt="<%= product.name %>">
+                            <p class="category">
+                                <%= product.category %>
+                            </p>
+                            <h3>
+                                <%= product.name %>
+                            </h3>
+                            <p class="brand">
+                                <%= product.brand %>
+                            </p>
+                            <p class="price">₹<%= product.price %>
+                            </p>
+                            <% if (product.originalPrice) { %>
+                                <p class="original-price"><del>₹<%= product.originalPrice %></del></p>
+                                <% } %>
+
+                                    <div class="card-buttons">
+                                        <a href="/products/<%= product._id || product.id %>">View Details</a>
+                                        <form action="/cart/add/<%= product._id || product.id %>" method="POST">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit">Add to Cart</button>
+                                        </form>
+                                    </div>
+                        </div>
+                        <% }) %>
+                            <% } else { %>
+                                <p>No products available at the moment.</p>
+                                <% } %>
+            </div>
+        </section>
+
+        <!-- Features / Trust Section -->
+        <section class="features">
+            <div class="feature-item">
+                <h3>Free Delivery</h3>
+                <p>On all orders above ₹999</p>
+            </div>
+            <div class="feature-item">
+                <h3>1-Year Warranty</h3>
+                <p>100% Genuine brand products</p>
+            </div>
+            <div class="feature-item">
+                <h3>7 Days Replacement</h3>
+                <p>Hassle-free replacement policy</p>
+            </div>
+            <div class="feature-item">
+                <h3>24/7 Tech Support</h3>
+                <p>Dedicated customer support</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <div>
+                <h4>Techkart</h4>
+                <p>Your one-stop destination for next-gen technology and gadgets.</p>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/products">Products</a></li>
+                    <li><a href="/cart">Cart</a></li>
+                    <li><a href="/my-orders">My Orders</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Contact Us</h4>
+                <p>Email: support@techkart.com</p>
+                <p>Phone: +91 98765 43210</p>
+            </div>
+        </div>
+        <p class="copyright">&copy; <%= new Date().getFullYear() %> Techkart. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>

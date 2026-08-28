@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= (typeof product !=='undefined' && product.name) ? product.name : 'Product Details' %> - Techkart
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <a href="/">Techkart</a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/my-orders">My Orders</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <% if (typeof product !=='undefined' && product) { %>
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb">
+                <a href="/">Home</a> &gt;
+                <a href="/products">Products</a> &gt;
+                <span>
+                    <%= product.name %>
+                </span>
+            </nav>
+
+            <article class="product-details-container">
+                <!-- Image Gallery -->
+                <div class="product-gallery">
+                    <img id="main-product-img" src="<%= product.image || '/images/default-gadget.png' %>"
+                        alt="<%= product.name %>">
+                </div>
+
+                <!-- Product Info -->
+                <div class="product-info">
+                    <h1>
+                        <%= product.name %>
+                    </h1>
+                    <p class="brand">Brand: <strong>
+                            <%= product.brand %>
+                        </strong></p>
+                    <p class="category">Category: <strong>
+                            <%= product.category %>
+                        </strong></p>
+                    <p class="price">Price: <strong>₹<%= product.price %></strong></p>
+                    <% if (product.originalPrice) { %>
+                        <p class="original-price">MRP: <del>₹<%= product.originalPrice %></del></p>
+                        <% } %>
+                            <p class="stock-status">Status: <strong>
+                                    <%= (product.stock> 0) ? 'In Stock' : 'Out of Stock' %>
+                                </strong></p>
+
+                            <!-- Add to Cart Form -->
+                            <form action="/cart/add/<%= product._id || product.id %>" method="POST">
+                                <label for="quantity">Quantity:</label>
+                                <input type="number" id="quantity" name="quantity" value="1" min="1"
+                                    max="<%= product.stock || 10 %>">
+
+                                <button type="submit" <%=(product.stock <=0) ? 'disabled' : '' %>>
+                                    Add to Cart
+                                </button>
+                            </form>
+
+                            <!-- Product Description -->
+                            <div class="description-section">
+                                <h3>Description</h3>
+                                <p>
+                                    <%= product.description || 'No description available for this product.' %>
+                                </p>
+                            </div>
+
+                            <!-- Technical Specifications -->
+                            <div class="specifications-section">
+                                <h3>Specifications</h3>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th>Brand</th>
+                                            <td>
+                                                <%= product.brand || 'N/A' %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Category</th>
+                                            <td>
+                                                <%= product.category || 'N/A' %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Warranty</th>
+                                            <td>1 Year Official Brand Warranty</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                </div>
+            </article>
+            <% } else { %>
+                <p>Product not found.</p>
+                <a href="/products">Back to Products</a>
+                <% } %>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; <%= new Date().getFullYear() %> Techkart. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>

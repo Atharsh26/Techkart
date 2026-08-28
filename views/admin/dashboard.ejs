@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Techkart</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <!-- Admin Header / Nav -->
+    <header>
+        <h2>Techkart Admin</h2>
+        <nav>
+            <ul>
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/products/add">Add Product</a></li>
+                <li><a href="/admin/orders">Orders</a></li>
+                <li><a href="/admin/customers">Customers</a></li>
+                <li><a href="/products" target="_blank">View Live Store</a></li>
+                <li><a href="/admin/logout">Sign Out</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Store Overview & Dashboard</h1>
+
+        <!-- KPI Metrics -->
+        <section class="kpi-metrics">
+            <div>
+                <h3>Total Revenue</h3>
+                <p>₹<%= (typeof totalRevenue !=='undefined' ) ? totalRevenue : '0' %>
+                </p>
+            </div>
+            <div>
+                <h3>Total Orders</h3>
+                <p>
+                    <%= (typeof totalOrders !=='undefined' ) ? totalOrders : '0' %>
+                </p>
+            </div>
+            <div>
+                <h3>Total Products</h3>
+                <p>
+                    <%= (typeof totalProducts !=='undefined' ) ? totalProducts : '0' %>
+                </p>
+            </div>
+            <div>
+                <h3>Registered Customers</h3>
+                <p>
+                    <%= (typeof totalCustomers !=='undefined' ) ? totalCustomers : '0' %>
+                </p>
+            </div>
+        </section>
+
+        <!-- Recent Orders Table -->
+        <section class="recent-orders">
+            <h2>Recent Orders</h2>
+            <table border="1" cellpadding="8" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof recentOrders !=='undefined' && recentOrders && recentOrders.length> 0) { %>
+                        <% recentOrders.forEach(ord=> { %>
+                            <tr>
+                                <td>
+                                    <%= ord._id %>
+                                </td>
+                                <td>
+                                    <%= (ord.shippingAddress && ord.shippingAddress.fullName) ?
+                                        ord.shippingAddress.fullName : 'Customer' %>
+                                </td>
+                                <td>₹<%= ord.totalAmount %>
+                                </td>
+                                <td>
+                                    <%= ord.paymentMethod %>
+                                </td>
+                                <td>
+                                    <%= ord.status %>
+                                </td>
+                                <td><a href="/admin/orders">Manage</a></td>
+                            </tr>
+                            <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6">No recent orders.</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; <%= new Date().getFullYear() %> Techkart Admin Control.</p>
+    </footer>
+
+</body>
+
+</html>

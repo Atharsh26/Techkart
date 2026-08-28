@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products - Techkart</title>
+    <!-- rel="stylesheet" href="/css/style.css"> -->
+</head>
+
+<body>
+
+    <!-- Header / Navbar -->
+    <header>
+        <div class="logo">
+            <a href="/">Techkart</a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/my-orders">My Orders</a></li>
+                <li><a href="/cart">Cart (<%= (typeof cart !=='undefined' && cart && cart.items) ? cart.items.length : 0
+                            %>)</a></li>
+            </ul>
+        </nav>
+        <div>
+            <% if (typeof user !=='undefined' && user) { %>
+                <span>
+                    <%= user.name %>
+                </span>
+                <a href="/logout">Logout</a>
+                <% } else { %>
+                    <a href="/login">Login</a>
+                    <a href="/register">Register</a>
+                    <% } %>
+        </div>
+    </header>
+
+    <main>
+        <h1>Products Catalog</h1>
+
+        <div class="shop-container">
+            <!-- Sidebar Filters -->
+            <aside class="filters-sidebar">
+                <h2>Filters</h2>
+                <form action="/products" method="GET">
+                    <!-- Search Filter -->
+                    <div class="filter-group">
+                        <label for="search">Search:</label>
+                        <input type="text" id="search" name="search" placeholder="Search products..."
+                            value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="filter-group">
+                        <h3>Category</h3>
+                        <div>
+                            <input type="radio" id="cat-all" name="category" value="" <%=(!locals.currentCategory ||
+                                currentCategory==='' ) ? 'checked' : '' %>>
+                            <label for="cat-all">All Categories</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cat-smartphones" name="category" value="smartphones"
+                                <%=(locals.currentCategory==='smartphones' ) ? 'checked' : '' %>>
+                            <label for="cat-smartphones">Smartphones</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cat-laptops" name="category" value="laptops"
+                                <%=(locals.currentCategory==='laptops' ) ? 'checked' : '' %>>
+                            <label for="cat-laptops">Laptops</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cat-audio" name="category" value="audio"
+                                <%=(locals.currentCategory==='audio' ) ? 'checked' : '' %>>
+                            <label for="cat-audio">Audio</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cat-wearables" name="category" value="wearables"
+                                <%=(locals.currentCategory==='wearables' ) ? 'checked' : '' %>>
+                            <label for="cat-wearables">Wearables</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cat-gaming" name="category" value="gaming"
+                                <%=(locals.currentCategory==='gaming' ) ? 'checked' : '' %>>
+                            <label for="cat-gaming">Gaming</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cat-accessories" name="category" value="accessories"
+                                <%=(locals.currentCategory==='accessories' ) ? 'checked' : '' %>>
+                            <label for="cat-accessories">Accessories</label>
+                        </div>
+                    </div>
+
+                    <!-- Brand Filter -->
+                    <div class="filter-group">
+                        <h3>Brand</h3>
+                        <div>
+                            <input type="checkbox" id="brand-apple" name="brand" value="Apple">
+                            <label for="brand-apple">Apple</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="brand-sony" name="brand" value="Sony">
+                            <label for="brand-sony">Sony</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="brand-samsung" name="brand" value="Samsung">
+                            <label for="brand-samsung">Samsung</label>
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="filter-group">
+                        <h3>Price Range</h3>
+                        <label for="minPrice">Min Price:</label>
+                        <input type="number" id="minPrice" name="minPrice" placeholder="0"
+                            value="<%= typeof minPrice !== 'undefined' ? minPrice : '' %>">
+                        <label for="maxPrice">Max Price:</label>
+                        <input type="number" id="maxPrice" name="maxPrice" placeholder="100000"
+                            value="<%= typeof maxPrice !== 'undefined' ? maxPrice : '' %>">
+                    </div>
+
+                    <button type="submit">Apply Filters</button>
+                    <a href="/products">Reset</a>
+                </form>
+            </aside>
+
+            <!-- Product List Grid -->
+            <section class="products-section">
+                <!-- Sorting Bar -->
+                <div class="sorting-bar">
+                    <p>Total Products: <%= (typeof products !=='undefined' && products) ? products.length : 0 %>
+                    </p>
+                </div>
+
+                <div class="product-grid">
+                    <% if (typeof products !=='undefined' && products && products.length> 0) { %>
+                        <% products.forEach(product=> { %>
+                            <div class="product-card">
+                                <img src="<%= product.image || '/images/default-gadget.png' %>"
+                                    alt="<%= product.name %>">
+                                <h3>
+                                    <%= product.name %>
+                                </h3>
+                                <p>Brand: <%= product.brand %>
+                                </p>
+                                <p>Category: <%= product.category %>
+                                </p>
+                                <p>Price: ₹<%= product.price %>
+                                </p>
+                                <% if (product.originalPrice) { %>
+                                    <p>MRP: <del>₹<%= product.originalPrice %></del></p>
+                                    <% } %>
+                                        <div>
+                                            <a href="/products/<%= product._id || product.id %>">View Details</a>
+                                            <form action="/cart/add/<%= product._id || product.id %>" method="POST">
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button type="submit">Add to Cart</button>
+                                            </form>
+                                        </div>
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <p>No products found matching the criteria.</p>
+                                    <% } %>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; <%= new Date().getFullYear() %> Techkart. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>

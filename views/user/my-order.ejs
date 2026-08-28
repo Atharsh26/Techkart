@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Techkart</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <a href="/">Techkart</a>
+        </div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/products">Shop</a>
+            <a href="/cart">Cart</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>My Orders</h1>
+
+        <% if (typeof orders !=='undefined' && orders && orders.length> 0) { %>
+            <% orders.forEach(order=> { %>
+                <article class="order-box">
+                    <header>
+                        <p>Order ID: <strong>
+                                <%= order._id %>
+                            </strong></p>
+                        <p>Date: <%= order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '' %>
+                        </p>
+                        <p>Status: <strong>
+                                <%= order.status || 'Processing' %>
+                            </strong></p>
+                        <p>Total: <strong>₹<%= order.totalAmount %></strong></p>
+                    </header>
+
+                    <h3>Ordered Items</h3>
+                    <ul>
+                        <% if (order.items && order.items.length> 0) { %>
+                            <% order.items.forEach(item=> {
+                                let prod = item.productId || item;
+                                %>
+                                <li>
+                                    <img src="<%= prod.image || '/images/default-gadget.png' %>" alt="<%= prod.name %>"
+                                        width="50">
+                                    <span>
+                                        <%= prod.name || 'Product' %>
+                                    </span>
+                                    <span>Qty: <%= item.quantity || 1 %></span>
+                                    <span>₹<%= (prod.price || item.price || 0) * (item.quantity || 1) %></span>
+                                </li>
+                                <% }) %>
+                                    <% } %>
+                    </ul>
+                </article>
+                <hr>
+                <% }) %>
+                    <% } else { %>
+                        <p>You have not placed any orders yet.</p>
+                        <a href="/products">Shop Now</a>
+                        <% } %>
+    </main>
+
+    <footer>
+        <p>&copy; <%= new Date().getFullYear() %> Techkart. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>

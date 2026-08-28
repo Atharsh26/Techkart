@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Techkart</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <a href="/">Techkart</a>
+        </div>
+        <nav>
+            <a href="/products">Store</a>
+            <a href="/my-orders">My Orders</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Order Confirmed!</h1>
+        <p>Thank you for shopping with Techkart. Your order has been placed successfully.</p>
+
+        <!-- Order Information Details -->
+        <section class="order-confirmation-details">
+            <h2>Order Details</h2>
+            <p>Order ID: <strong>
+                    <%= (typeof order !=='undefined' && order._id) ? order._id : 'TK-984321' %>
+                </strong></p>
+            <p>Order Date: <strong>
+                    <%= (typeof order !=='undefined' && order.createdAt) ? new
+                        Date(order.createdAt).toLocaleDateString() : new Date().toLocaleDateString() %>
+                </strong></p>
+            <p>Total Paid: <strong>₹<%= (typeof order !=='undefined' && order.totalAmount) ? order.totalAmount : '0' %>
+                        </strong></p>
+            <p>Payment Method: <strong>
+                    <%= (typeof order !=='undefined' && order.paymentMethod) ? order.paymentMethod : 'Online' %>
+                </strong></p>
+
+            <h3>Items in this Order</h3>
+            <ul>
+                <% if (typeof order !=='undefined' && order.items && order.items.length> 0) { %>
+                    <% order.items.forEach(item=> {
+                        let prod = item.productId || item;
+                        %>
+                        <li>
+                            <%= prod.name || 'Product Item' %> - Qty: <%= item.quantity || 1 %> - Price: ₹<%=
+                                        (prod.price || item.price || 0) * (item.quantity || 1) %>
+                        </li>
+                        <% }) %>
+                            <% } else { %>
+                                <li>Gadget Package Item (Qty: 1)</li>
+                                <% } %>
+            </ul>
+        </section>
+
+        <div>
+            <a href="/my-orders">Track My Order</a>
+            <br><br>
+            <a href="/products">Continue Shopping</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; <%= new Date().getFullYear() %> Techkart. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>
