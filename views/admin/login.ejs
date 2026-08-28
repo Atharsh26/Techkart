@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Techkart</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <main>
+        <h1>Techkart Admin Portal</h1>
+        <p>Authorized personnel only</p>
+
+        <% if (typeof error !=='undefined' && error) { %>
+            <p style="color: red;">
+                <%= error %>
+            </p>
+            <% } %>
+
+                <form action="/admin/login" method="POST">
+                    <div>
+                        <label for="email">Admin Email / Username:</label>
+                        <input type="text" id="email" name="email" required placeholder="admin@techkart.com"
+                            value="<%= typeof email !== 'undefined' ? email : '' %>">
+                    </div>
+
+                    <div>
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required placeholder="Enter password">
+                    </div>
+
+                    <button type="submit">Access Dashboard</button>
+                </form>
+
+                <p><a href="/">Back to Storefront</a></p>
+    </main>
+
+</body>
+
+</html>

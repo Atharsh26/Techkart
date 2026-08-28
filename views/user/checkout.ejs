@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Techkart</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <a href="/">Techkart</a>
+        </div>
+        <nav>
+            <a href="/cart">Back to Cart</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Checkout</h1>
+
+        <% let itemsList=(typeof cart !=='undefined' && cart && cart.items) ? cart.items : []; let subtotal=0;
+            itemsList.forEach(item=> {
+            let pPrice = (item.productId && item.productId.price) ? item.productId.price : (item.price || 0);
+            subtotal += (pPrice * (item.quantity || 1));
+            });
+            let shippingFee = subtotal > 999 || subtotal === 0 ? 0 : 99;
+            let discount = (typeof couponDiscount !== 'undefined') ? couponDiscount : 0;
+            let finalTotal = Math.max(0, subtotal + shippingFee - discount);
+            %>
+
+            <form action="/checkout" method="POST">
+                <!-- 1. Contact Information -->
+                <fieldset>
+                    <legend>1. Contact Information</legend>
+                    <div>
+                        <label for="email">Email Address:</label>
+                        <input type="email" id="email" name="email" required
+                            value="<%= (typeof user !== 'undefined' && user.email) ? user.email : '' %>">
+                    </div>
+                    <div>
+                        <label for="phone">Phone Number:</label>
+                        <input type="tel" id="phone" name="phone" required
+                            value="<%= (typeof user !== 'undefined' && user.phone) ? user.phone : '' %>">
+                    </div>
+                </fieldset>
+
+                <!-- 2. Shipping Address -->
+                <fieldset>
+                    <legend>2. Shipping Address</legend>
+                    <div>
+                        <label for="fullName">Full Name:</label>
+                        <input type="text" id="fullName" name="fullName" required
+                            value="<%= (typeof user !== 'undefined' && user.name) ? user.name : '' %>">
+                    </div>
+                    <div>
+                        <label for="streetAddress">Street Address / House No:</label>
+                        <input type="text" id="streetAddress" name="streetAddress" required>
+                    </div>
+                    <div>
+                        <label for="city">City:</label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+                    <div>
+                        <label for="state">State:</label>
+                        <input type="text" id="state" name="state" required>
+                    </div>
+                    <div>
+                        <label for="pincode">PIN Code:</label>
+                        <input type="text" id="pincode" name="pincode" required maxlength="6">
+                    </div>
+                </fieldset>
+
+                <!-- 3. Payment Method -->
+                <fieldset>
+                    <legend>3. Payment Method</legend>
+                    <div>
+                        <input type="radio" id="pay-upi" name="paymentMethod" value="UPI" checked>
+                        <label for="pay-upi">UPI / QR Code</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="pay-card" name="paymentMethod" value="Card">
+                        <label for="pay-card">Credit / Debit Card</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="pay-netbanking" name="paymentMethod" value="NetBanking">
+                        <label for="pay-netbanking">Net Banking</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="pay-cod" name="paymentMethod" value="COD">
+                        <label for="pay-cod">Cash on Delivery (COD)</label>
+                    </div>
+                </fieldset>
+
+                <!-- 4. Order Summary -->
+                <fieldset>
+                    <legend>Order Summary</legend>
+                    <ul>
+                        <% if (itemsList && itemsList.length> 0) { %>
+                            <% itemsList.forEach(item=> {
+                                let prod = item.productId || item;
+                                let itemPrice = prod.price || item.price || 0;
+                                %>
+                                <li>
+                                    <%= prod.name || 'Product' %> (Qty: <%= item.quantity || 1 %>) - ₹<%= itemPrice *
+                                                (item.quantity || 1) %>
+                                </li>
+                                <% }) %>
+                                    <% } %>
+                    </ul>
+                    <p>Subtotal: ₹<%= subtotal %>
+                    </p>
+                    <p>Shipping: <%= shippingFee===0 ? 'FREE' : '₹' + shippingFee %>
+                    </p>
+                    <h3>Total Amount: ₹<%= finalTotal %>
+                    </h3>
+
+                    <div>
+                        <input type="checkbox" id="terms" required checked>
+                        <label for="terms">I accept the terms and conditions</label>
+                    </div>
+
+                    <button type="submit">Place Order</button>
+                </fieldset>
+            </form>
+    </main>
+
+    <footer>
+        <p>&copy; <%= new Date().getFullYear() %> Techkart. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>
