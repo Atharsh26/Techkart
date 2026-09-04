@@ -1,0 +1,523 @@
+/* =========================
+   TECHKART - GLOBAL STYLES
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --secondary: #111827;
+    --light-bg: #f5f7fb;
+    --white: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--light-bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+/* =========================
+   LINKS
+========================= */
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    background-color: var(--white);
+    padding: 15px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo a {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+header nav ul {
+    display: flex;
+    list-style: none;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+header nav a {
+    font-weight: 500;
+    color: var(--secondary);
+    transition: 0.3s;
+}
+
+header nav a:hover {
+    color: var(--primary);
+}
+
+/* Header right-side actions */
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-actions form {
+    display: flex;
+    gap: 5px;
+}
+
+.nav-actions input {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+main {
+    max-width: 1200px;
+    margin: auto;
+    padding: 40px 20px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+button,
+input[type="submit"] {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: var(--primary-dark);
+}
+
+/* =========================
+   FORMS
+========================= */
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* =========================
+   HERO SECTION
+========================= */
+
+.hero {
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: white;
+    padding: 90px 30px;
+    text-align: center;
+    border-radius: 15px;
+    margin-bottom: 50px;
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 25px;
+}
+
+.hero a {
+    display: inline-block;
+    background-color: white;
+    color: var(--primary);
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+/* =========================
+   SECTION HEADINGS
+========================= */
+
+.categories,
+.featured-products,
+.features {
+    margin-bottom: 60px;
+}
+
+.categories h2,
+.featured-products h2 {
+    margin-bottom: 25px;
+    font-size: 30px;
+}
+
+/* =========================
+   CATEGORY GRID
+========================= */
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.category-item {
+    background-color: white;
+    padding: 30px 20px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    transition: 0.3s;
+}
+
+.category-item:hover {
+    transform: translateY(-5px);
+}
+
+.category-item h3 {
+    color: var(--secondary);
+}
+
+/* =========================
+   PRODUCT GRID
+========================= */
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.product-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: var(--shadow);
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+}
+
+.product-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.product-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.product-card p {
+    margin-bottom: 6px;
+}
+
+.product-card .category {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.product-card .brand {
+    color: var(--muted);
+}
+
+.product-card .price {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--success);
+}
+
+.original-price {
+    color: var(--muted);
+}
+
+/* Product buttons */
+
+.card-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.card-buttons a,
+.product-card > div a {
+    display: inline-block;
+    background-color: #e5e7eb;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    flex: 1;
+}
+
+.card-buttons form,
+.product-card > div form {
+    flex: 1;
+}
+
+.card-buttons button,
+.product-card > div button {
+    width: 100%;
+}
+
+/* =========================
+   FEATURES
+========================= */
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.feature-item {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.feature-item h3 {
+    margin-bottom: 10px;
+    color: var(--primary);
+}
+
+/* =========================
+   PRODUCTS PAGE
+========================= */
+
+.shop-container {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.filters-sidebar {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    height: fit-content;
+}
+
+.filter-group {
+    margin-bottom: 25px;
+}
+
+.filter-group h3 {
+    margin-bottom: 10px;
+}
+
+.filter-group div {
+    margin: 8px 0;
+}
+
+.filter-group input[type="radio"],
+.filter-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+}
+
+.filter-group label {
+    cursor: pointer;
+}
+
+/* =========================
+   SORTING BAR
+========================= */
+
+.sorting-bar {
+    background-color: white;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    background-color: var(--secondary);
+    color: white;
+    padding: 40px 5% 20px;
+    margin-top: 50px;
+}
+
+.footer-links {
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.footer-links h4 {
+    margin-bottom: 12px;
+    font-size: 18px;
+}
+
+.footer-links ul {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 8px;
+}
+
+.footer-links a:hover {
+    color: #93c5fd;
+}
+
+.copyright {
+    text-align: center;
+    margin-top: 30px;
+    color: #9ca3af;
+}
+
+/* =========================
+   TABLES
+========================= */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    margin-top: 20px;
+}
+
+th,
+td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid var(--border);
+}
+
+th {
+    background-color: #f3f4f6;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+@media (max-width: 900px) {
+
+    header {
+        flex-direction: column;
+    }
+
+    .nav-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .shop-container {
+        grid-template-columns: 1fr;
+    }
+
+    .filters-sidebar {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+
+    main {
+        padding: 25px 15px;
+    }
+
+    .hero {
+        padding: 60px 20px;
+    }
+
+    .hero h1 {
+        font-size: 32px;
+    }
+
+    .category-grid,
+    .product-grid,
+    .features,
+    .footer-links {
+        grid-template-columns: 1fr;
+    }
+
+    header nav ul {
+        justify-content: center;
+    }
+
+    .nav-actions form {
+        flex-direction: column;
+    }
+
+    .card-buttons {
+        flex-direction: column;
+    }
+}
