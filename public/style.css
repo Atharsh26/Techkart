@@ -12,18 +12,49 @@
     --primary: #2563eb;
     --primary-dark: #1d4ed8;
     --secondary: #111827;
+    --nav-text: #111827;
     --light-bg: #f5f7fb;
     --white: #ffffff;
+    --surface-alt: #f3f4f6;
     --text: #1f2937;
     --muted: #6b7280;
     --border: #e5e7eb;
     --success: #16a34a;
     --danger: #dc2626;
     --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    color-scheme: light;
+}
+
+/* =========================
+   DARK MODE
+   Toggled by adding data-theme="dark" to <html> (see the theme-toggle
+   button in the header + public/script.js). Defaults to dark - see the
+   inline script at the top of <head> in every page.
+========================= */
+:root[data-theme="dark"] {
+    --primary: #5b9dff;
+    --primary-dark: #3b82f6;
+    --secondary: #0b0f19;
+    --nav-text: #e7eaf0;
+    --light-bg: #0b1120;
+    --white: #161f32;
+    --surface-alt: #1f2a41;
+    --text: #e5e7eb;
+    --muted: #9aa5b6;
+    --border: #2b3750;
+    --success: #34d399;
+    --danger: #f87171;
+    --shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    /* Google itself uses "Google Sans" for its own products, but that
+       family was never actually published on the public Google Fonts
+       catalog, so the @import for it was silently failing and falling
+       back to Arial. Roboto is Google's real open-source Google Fonts
+       typeface, so it's used here as the genuine "Google" look. */
+    font-family: 'Google Sans', Arial, Helvetica, sans-serif;
     background-color: var(--light-bg);
     color: var(--text);
     line-height: 1.6;
@@ -46,13 +77,17 @@ header {
     background-color: var(--white);
     padding: 15px 5%;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
+    gap: 12px 20px;
     box-shadow: var(--shadow);
     position: sticky;
     top: 0;
     z-index: 100;
+}
+
+.logo {
+    order: 1;
 }
 
 .logo a {
@@ -61,16 +96,25 @@ header {
     color: var(--primary);
 }
 
+header nav {
+    order: 3;
+    flex-basis: 100%;
+    width: 100%;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+}
+
 header nav ul {
     display: flex;
     list-style: none;
-    gap: 18px;
+    gap: 22px;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 header nav a {
     font-weight: 500;
-    color: var(--secondary);
+    color: var(--nav-text);
     transition: 0.3s;
 }
 
@@ -81,6 +125,8 @@ header nav a:hover {
 /* Header right-side actions */
 
 .nav-actions {
+    order: 2;
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -141,6 +187,13 @@ select {
     border: 1px solid var(--border);
     border-radius: 6px;
     font-size: 15px;
+    background-color: var(--white);
+    color: var(--text);
+}
+
+.nav-actions input {
+    background-color: var(--white);
+    color: var(--text);
 }
 
 input:focus,
@@ -154,32 +207,135 @@ select:focus {
    HERO SECTION
 ========================= */
 
-.hero {
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
-    color: white;
-    padding: 90px 30px;
-    text-align: center;
+.hero-slideshow {
+    position: relative;
     border-radius: 15px;
+    overflow: hidden;
     margin-bottom: 50px;
+    height: 380px;
 }
 
-.hero h1 {
-    font-size: 48px;
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    padding: 40px 30px;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transform: scale(1.03);
+    pointer-events: none;
+    /* Fading OUT (losing .active) happens immediately and quickly... */
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
+    visibility: hidden;
+}
+
+.hero-slide.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+    visibility: visible;
+    /* ...while fading IN (gaining .active) is delayed until the outgoing
+       slide has fully finished, so the two headlines never overlap. */
+    transition: opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s, visibility 0s linear 0s;
+}
+
+.hero-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.18);
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    backdrop-filter: blur(4px);
+}
+
+.hero-slide h1 {
+    font-size: 44px;
     margin-bottom: 15px;
+    max-width: 700px;
 }
 
-.hero p {
+.hero-slide p {
     font-size: 18px;
     margin-bottom: 25px;
+    max-width: 560px;
+    opacity: 0.95;
 }
 
-.hero a {
+.hero-slide a {
     display: inline-block;
     background-color: white;
-    color: var(--primary);
-    padding: 12px 25px;
-    border-radius: 6px;
-    font-weight: bold;
+    color: var(--primary-dark);
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: transform 0.2s ease;
+}
+
+.hero-slide a:hover {
+    transform: translateY(-2px);
+}
+
+.hero-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.25);
+    border: none;
+    color: white;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 5;
+    transition: background 0.2s ease;
+}
+
+.hero-arrow:hover {
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.hero-prev {
+    left: 20px;
+}
+
+.hero-next {
+    right: 20px;
+}
+
+.hero-dots {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 5;
+}
+
+.hero-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.hero-dot.active {
+    background: white;
+    transform: scale(1.3);
 }
 
 /* =========================
@@ -209,7 +365,7 @@ select:focus {
 }
 
 .category-item {
-    background-color: white;
+    background-color: var(--white);
     padding: 30px 20px;
     text-align: center;
     border-radius: 10px;
@@ -222,7 +378,7 @@ select:focus {
 }
 
 .category-item h3 {
-    color: var(--secondary);
+    color: var(--nav-text);
 }
 
 /* =========================
@@ -236,7 +392,7 @@ select:focus {
 }
 
 .product-card {
-    background-color: white;
+    background-color: var(--white);
     border-radius: 12px;
     padding: 18px;
     box-shadow: var(--shadow);
@@ -254,6 +410,157 @@ select:focus {
     height: 220px;
     object-fit: contain;
     margin-bottom: 15px;
+}
+
+.product-image-wrap {
+    position: relative;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: var(--danger);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    z-index: 2;
+}
+
+.wishlist-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background-color: var(--white);
+    color: #9ca3af;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.wishlist-btn:hover {
+    transform: scale(1.1);
+}
+
+.wishlist-btn.active {
+    color: #dc2626;
+    border-color: #fca5a5;
+}
+
+.wishlist-btn.details-wishlist {
+    top: 12px;
+    right: 12px;
+}
+
+.rating-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.rating-pill span:first-child {
+    background-color: var(--success);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.rating-pill .review-count {
+    color: var(--muted);
+}
+
+.discount-text {
+    color: var(--success);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.assured-badge {
+    display: inline-block;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin: 8px 0;
+}
+
+.price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 10px 0;
+}
+
+.price-block .price {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.price-block .original-price {
+    color: var(--muted);
+    font-size: 17px;
+}
+
+.delivery-info {
+    background-color: var(--light-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+.delivery-info p {
+    margin: 2px 0;
+}
+
+.pdp-action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.btn-add-cart,
+.btn-buy-now {
+    flex: 1;
+    padding: 13px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.btn-add-cart:hover,
+.btn-buy-now:hover {
+    transform: translateY(-2px);
+}
+
+.btn-add-cart {
+    background-color: #ffc107;
+    color: #1f2937;
+}
+
+.btn-buy-now {
+    background-color: var(--primary);
+    color: white;
 }
 
 .product-card h3 {
@@ -296,7 +603,7 @@ select:focus {
 .card-buttons a,
 .product-card > div a {
     display: inline-block;
-    background-color: #e5e7eb;
+    background-color: var(--surface-alt);
     padding: 10px;
     border-radius: 6px;
     text-align: center;
@@ -324,7 +631,7 @@ select:focus {
 }
 
 .feature-item {
-    background-color: white;
+    background-color: var(--white);
     padding: 25px;
     border-radius: 10px;
     text-align: center;
@@ -348,7 +655,7 @@ select:focus {
 }
 
 .filters-sidebar {
-    background-color: white;
+    background-color: var(--white);
     padding: 25px;
     border-radius: 10px;
     box-shadow: var(--shadow);
@@ -382,7 +689,7 @@ select:focus {
 ========================= */
 
 .sorting-bar {
-    background-color: white;
+    background-color: var(--white);
     padding: 15px;
     margin-bottom: 20px;
     border-radius: 8px;
@@ -437,7 +744,7 @@ footer {
 table {
     width: 100%;
     border-collapse: collapse;
-    background-color: white;
+    background-color: var(--white);
     margin-top: 20px;
 }
 
@@ -449,7 +756,7 @@ td {
 }
 
 th {
-    background-color: #f3f4f6;
+    background-color: var(--surface-alt);
 }
 
 /* =========================
@@ -494,12 +801,22 @@ th {
         padding: 25px 15px;
     }
 
-    .hero {
-        padding: 60px 20px;
+    .hero-slideshow {
+        height: 420px;
     }
 
-    .hero h1 {
-        font-size: 32px;
+    .hero-slide {
+        padding: 30px 20px;
+    }
+
+    .hero-slide h1 {
+        font-size: 28px;
+    }
+
+    .hero-arrow {
+        width: 34px;
+        height: 34px;
+        font-size: 20px;
     }
 
     .category-grid,
@@ -520,4 +837,196 @@ th {
     .card-buttons {
         flex-direction: column;
     }
+}
+
+/* =========================
+   PRODUCT DETAILS PAGE
+========================= */
+
+.product-details-container {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 40px;
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: var(--shadow);
+    margin-top: 20px;
+}
+
+.product-gallery {
+    position: relative;
+    align-self: start;
+    position: sticky;
+    top: 100px;
+}
+
+.product-gallery img {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: contain;
+    background-color: var(--light-bg);
+}
+
+.product-info h1 {
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+.product-info .brand,
+.product-info .category,
+.product-info .stock-status {
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.description-section,
+.specifications-section {
+    margin-top: 25px;
+}
+
+.description-section h3,
+.specifications-section h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+}
+
+.specifications-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.specifications-section th,
+.specifications-section td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.specifications-section th {
+    width: 35%;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .product-details-container {
+        grid-template-columns: 1fr;
+    }
+
+    .product-gallery {
+        position: static;
+    }
+}
+/* =========================
+   DARK MODE - COMPONENT TWEAKS
+   A few components use fixed brand colors that need their own dark-mode
+   adjustment beyond the CSS variable overrides above.
+========================= */
+
+[data-theme="dark"] .assured-badge {
+    background-color: #0c3a5c;
+    color: #7dd3fc;
+}
+
+[data-theme="dark"] .hero-slide {
+    /* the hero always sits on its own photo/gradient, independent of the
+       site theme, so its white text stays as-is in both modes */
+}
+
+[data-theme="dark"] ::selection {
+    background: var(--primary);
+    color: #fff;
+}
+
+/* =========================
+   THEME TOGGLE BUTTON
+========================= */
+
+.theme-toggle-btn {
+    background-color: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--nav-text);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+}
+
+.theme-toggle-standalone {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 200;
+    background-color: var(--white);
+    box-shadow: var(--shadow);
+}
+
+.theme-toggle-btn:hover {
+    background-color: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    transform: rotate(15deg);
+}
+
+/* =========================
+   ELEGANT LOGIN / REGISTER BUTTONS
+   Distinct, "dynamic" pill-shaped styles that invert on hover for a
+   clear contrast change, and stay legible in both light and dark mode.
+========================= */
+
+.nav-actions a[href="/login"],
+.nav-actions a[href="/register"] {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 20px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.nav-actions a[href="/login"] {
+    background-color: transparent;
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+}
+
+.nav-actions a[href="/login"]:hover {
+    background-color: var(--primary);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.nav-actions a[href="/register"] {
+    background-image: linear-gradient(135deg, var(--primary), #7c3aed);
+    color: #ffffff;
+    border: 1.5px solid transparent;
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+}
+
+.nav-actions a[href="/register"]:hover {
+    background-image: linear-gradient(135deg, #7c3aed, var(--primary));
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.45);
+}
+
+.nav-actions a[href="/logout"] {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.nav-actions span {
+    color: var(--text);
+    font-weight: 500;
 }

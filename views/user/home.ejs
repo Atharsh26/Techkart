@@ -2,9 +2,14 @@
 <html lang="en">
 
 <head>
+    <script>(function(){try{var t=localStorage.getItem("techkart-theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Techkart - E-Commerce Gadget Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -28,6 +33,7 @@
             </ul>
         </nav>
         <div class="nav-actions">
+            <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
             <!-- Search Form -->
             <form action="/products" method="GET">
                 <input type="text" name="search" placeholder="Search gadgets..."
@@ -49,11 +55,35 @@
 
     <!-- Main Content -->
     <main>
-        <!-- Hero Section -->
-        <section class="hero">
-            <h1>Discover The Future Of Gadgets</h1>
-            <p>Shop latest smartphones, ultra laptops, noise cancelling headphones, and gaming gear.</p>
-            <a href="/products">Shop Now</a>
+        <!-- Hero Slideshow -->
+        <section class="hero-slideshow" id="hero-slideshow">
+            <div class="hero-slide active" style="background-image: linear-gradient(135deg, rgba(37,99,235,.82), rgba(124,58,237,.82)), url('https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=1600&q=80');">
+                <span class="hero-badge">🔥 New Arrivals</span>
+                <h1>Discover The Future Of Gadgets</h1>
+                <p>Shop the latest smartphones, ultra laptops, noise-cancelling headphones, and gaming gear.</p>
+                <a href="/products">Shop Now</a>
+            </div>
+            <div class="hero-slide" style="background-image: linear-gradient(135deg, rgba(8,145,178,.82), rgba(37,99,235,.82)), url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1600&q=80');">
+                <span class="hero-badge">📱 Trending</span>
+                <h1>Next-Gen Smartphones Have Landed</h1>
+                <p>Blazing fast performance, stunning displays, and cameras that capture every detail.</p>
+                <a href="/products?category=smartphones">Explore Smartphones</a>
+            </div>
+            <div class="hero-slide" style="background-image: linear-gradient(135deg, rgba(124,58,237,.82), rgba(219,39,119,.82)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80');">
+                <span class="hero-badge">🎮 Level Up</span>
+                <h1>Gear Built For Serious Gamers</h1>
+                <p>Controllers, headsets, and accessories designed to keep you ahead of the competition.</p>
+                <a href="/products?category=gaming">Shop Gaming</a>
+            </div>
+
+            <button class="hero-arrow hero-prev" id="hero-prev" aria-label="Previous slide">&#8249;</button>
+            <button class="hero-arrow hero-next" id="hero-next" aria-label="Next slide">&#8250;</button>
+
+            <div class="hero-dots" id="hero-dots">
+                <button class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
+                <button class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
+                <button class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+            </div>
         </section>
 
         <!-- Categories Section -->
@@ -147,8 +177,7 @@
             </div>
         </div>
         <p class="copyright">&copy; <%= new Date().getFullYear() %> Techkart. All rights reserved.</p>
-    </footer>
-
+    </footer>    <script src="/script.js" defer></script>
 </body>
 
 </html>

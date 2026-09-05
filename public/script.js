@@ -950,16 +950,60 @@ function escapeHtml(str) {
 }
 function formatMoney(n) { return '₹' + Number(n || 0).toLocaleString('en-IN'); }
 
+// ---------- Amazon/Flipkart-style helpers ----------
+function renderStars(rating) {
+    const r = Math.round(Number(rating || 0) * 2) / 2; // nearest half star
+    let out = '';
+    for (let i = 1; i <= 5; i++) {
+        if (r >= i) out += '★';
+        else if (r >= i - 0.5) out += '⯨';
+        else out += '☆';
+    }
+    return out;
+}
+function discountPercent(price, originalPrice) {
+    if (!originalPrice || originalPrice <= price) return 0;
+    return Math.round(((originalPrice - price) / originalPrice) * 100);
+}
+function getWishlist() {
+    try { return JSON.parse(localStorage.getItem('tk_wishlist') || '[]'); } catch (e) { return []; }
+}
+function isWishlisted(id) { return getWishlist().includes(id); }
+function toggleWishlist(id) {
+    let list = getWishlist();
+    if (list.includes(id)) list = list.filter(x => x !== id);
+    else list.push(id);
+    localStorage.setItem('tk_wishlist', JSON.stringify(list));
+    return list.includes(id);
+}
+
+// Delegate wishlist heart clicks (buttons are generated dynamically)
+document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.wishlist-btn');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const nowWishlisted = toggleWishlist(id);
+    btn.classList.toggle('active', nowWishlisted);
+    btn.textContent = nowWishlisted ? '♥' : '♡';
+});
+
 function productCardHtml(p) {
     const id = p._id || p.id;
+    const discount = discountPercent(p.price, p.originalPrice);
+    const wishlisted = isWishlisted(id);
     return `
     <div class="product-card">
-        <img src="${escapeHtml(p.imageUrl) || '/images/default-gadget.png'}" alt="${escapeHtml(p.name)}">
+        <div class="product-image-wrap">
+            ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ''}
+            <button type="button" class="wishlist-btn ${wishlisted ? 'active' : ''}" data-id="${id}" aria-label="Add to wishlist">${wishlisted ? '♥' : '♡'}</button>
+            <img src="${escapeHtml(p.imageUrl) || '/images/default-gadget.png'}" alt="${escapeHtml(p.name)}">
+        </div>
         <p class="category">${escapeHtml(p.category)}</p>
         <h3>${escapeHtml(p.name)}</h3>
         <p class="brand">${escapeHtml(p.brand)}</p>
+        ${p.ratings ? `<p class="rating-pill"><span>${Number(p.ratings).toFixed(1)} ★</span> <span class="review-count">(${p.numReviews || 0})</span></p>` : ''}
         <p class="price">${formatMoney(p.price)}</p>
-        ${p.originalPrice ? `<p class="original-price"><del>${formatMoney(p.originalPrice)}</del></p>` : ''}
+        ${p.originalPrice ? `<p class="original-price"><del>${formatMoney(p.originalPrice)}</del> <span class="discount-text">${discount}% off</span></p>` : ''}
         <div class="card-buttons">
             <a href="/products/${id}">View Details</a>
             <form action="/cart/add/${id}" method="POST">
@@ -974,17 +1018,29 @@ function productCardHtml(p) {
 // use event delegation (same pattern as the cart update/remove handlers above)
 // rather than attaching a listener to each button individually.
 document.addEventListener('submit', async (event) => {
-    const addForm = event.target.closest('form[action^="/cart/add/"]');
+    const addForm = event.target.closest('form[action^="/cart/add/"], form.pdp-buy-form');
     if (!addForm) return;
+
+    // A "Buy Now" button can override the form's action via formaction
+    const submitter = event.submitter;
+    const effectiveAction = (submitter && submitter.getAttribute('formaction')) || addForm.getAttribute('action');
+    if (!effectiveAction || !effectiveAction.startsWith('/cart/add/')) return;
+
     event.preventDefault();
 
-    const productId = addForm.getAttribute('action').split('/').pop();
+    const [pathPart, queryPart] = effectiveAction.split('?');
+    const productId = pathPart.split('/').pop();
+    const buyNow = queryPart && queryPart.includes('buyNow=1');
     const qtyInput = addForm.querySelector('input[name="quantity"]');
     const qty = qtyInput ? Number(qtyInput.value) || 1 : 1;
 
     const result = await addProductToCart(productId, qty);
     if (result) {
-        alert('Added to cart!');
+        if (buyNow) {
+            window.location.href = '/checkout';
+        } else {
+            alert('Added to cart!');
+        }
     }
 });
 
@@ -1050,26 +1106,47 @@ document.addEventListener('submit', async (event) => {
         return;
     }
 
+    const discount = discountPercent(product.price, product.originalPrice);
+    const wishlisted = isWishlisted(product._id);
+    const deliveryDate = new Date(Date.now() + 4 * 24 * 60 * 60 * 1000)
+        .toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+
     container.innerHTML = `
         <nav aria-label="breadcrumb">
             <a href="/">Home</a> &gt; <a href="/products">Products</a> &gt; <span>${escapeHtml(product.name)}</span>
         </nav>
         <article class="product-details-container">
             <div class="product-gallery">
+                <button type="button" class="wishlist-btn details-wishlist ${wishlisted ? 'active' : ''}" data-id="${product._id}" aria-label="Add to wishlist">${wishlisted ? '♥' : '♡'}</button>
                 <img id="main-product-img" src="${escapeHtml(product.imageUrl) || '/images/default-gadget.png'}" alt="${escapeHtml(product.name)}">
             </div>
             <div class="product-info">
                 <h1>${escapeHtml(product.name)}</h1>
                 <p class="brand">Brand: <strong>${escapeHtml(product.brand || 'N/A')}</strong></p>
+                ${product.ratings ? `<p class="rating-pill"><span>${Number(product.ratings).toFixed(1)} ★</span> <span class="review-count">${product.numReviews || 0} ratings</span></p>` : ''}
                 <p class="category">Category: <strong>${escapeHtml(product.category)}</strong></p>
-                <p class="price">Price: <strong>${formatMoney(product.price)}</strong></p>
-                ${product.originalPrice ? `<p class="original-price">MRP: <del>${formatMoney(product.originalPrice)}</del></p>` : ''}
+
+                <div class="price-block">
+                    <span class="price">${formatMoney(product.price)}</span>
+                    ${product.originalPrice ? `<del class="original-price">${formatMoney(product.originalPrice)}</del>` : ''}
+                    ${discount > 0 ? `<span class="discount-text">${discount}% off</span>` : ''}
+                </div>
+                <span class="assured-badge">✔ Techkart Assured</span>
+
                 <p class="stock-status">Status: <strong>${product.stock > 0 ? 'In Stock' : 'Out of Stock'}</strong></p>
 
-                <form action="/cart/add/${product._id}" method="POST">
+                <div class="delivery-info">
+                    <p>🚚 Delivery by <strong>${deliveryDate}</strong></p>
+                    <p>Free delivery on orders above ₹999</p>
+                </div>
+
+                <form action="/cart/add/${product._id}" method="POST" class="pdp-buy-form">
                     <label for="quantity">Quantity:</label>
                     <input type="number" id="quantity" name="quantity" value="1" min="1" max="${product.stock || 10}">
-                    <button type="submit" ${product.stock <= 0 ? 'disabled' : ''}>Add to Cart</button>
+                    <div class="pdp-action-buttons">
+                        <button type="submit" class="btn-add-cart" ${product.stock <= 0 ? 'disabled' : ''}>Add to Cart</button>
+                        <button type="submit" formaction="/cart/add/${product._id}?buyNow=1" class="btn-buy-now" ${product.stock <= 0 ? 'disabled' : ''}>Buy Now</button>
+                    </div>
                 </form>
 
                 <div class="description-section">
@@ -1277,4 +1354,73 @@ document.addEventListener('submit', async (event) => {
         });
     }
     await draw();
+})();
+// ===============================
+// HOME PAGE HERO SLIDESHOW
+// ===============================
+(function initHeroSlideshow() {
+    const container = document.getElementById('hero-slideshow');
+    if (!container) return; // not on the home page
+
+    const slides = container.querySelectorAll('.hero-slide');
+    const dots = container.querySelectorAll('.hero-dot');
+    let current = 0;
+    let timer;
+
+    function goTo(index) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = (index + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    function startAutoplay() {
+        timer = setInterval(next, 5000);
+    }
+    function stopAutoplay() {
+        clearInterval(timer);
+    }
+
+    document.getElementById('hero-next').addEventListener('click', () => { next(); stopAutoplay(); startAutoplay(); });
+    document.getElementById('hero-prev').addEventListener('click', () => { prev(); stopAutoplay(); startAutoplay(); });
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => { goTo(i); stopAutoplay(); startAutoplay(); });
+    });
+
+    startAutoplay();
+})();
+
+// ===============================
+// DARK MODE TOGGLE
+// Defaults to dark (see the inline no-flash script in every page's <head>,
+// which sets data-theme from localStorage - or "dark" if nothing is saved
+// yet - before the page paints).
+// ===============================
+(function initThemeToggle() {
+    const STORAGE_KEY = 'techkart-theme';
+    const btn = document.getElementById('theme-toggle');
+
+    function currentTheme() {
+        return document.documentElement.getAttribute('data-theme') || 'dark';
+    }
+
+    function syncIcon() {
+        if (!btn) return;
+        btn.textContent = currentTheme() === 'dark' ? '☀️' : '🌙';
+    }
+
+    syncIcon();
+
+    if (btn) {
+        btn.addEventListener('click', () => {
+            const next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem(STORAGE_KEY, next); } catch (e) { /* ignore */ }
+            syncIcon();
+        });
+    }
 })();

@@ -2,9 +2,14 @@
 <html lang="en">
 
 <head>
+    <script>(function(){try{var t=localStorage.getItem("techkart-theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation - Techkart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -18,6 +23,7 @@
             <a href="/products">Store</a>
             <a href="/my-orders">My Orders</a>
         </nav>
+        <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode">&#127769;</button>
     </header>
 
     <main>
@@ -47,8 +53,8 @@
                         let prod = item.productId || item;
                         %>
                         <li>
-                            <%= prod.name || 'Product Item' %> - Qty: <%= item.quantity || 1 %> - Price: ₹<%=
-                                        (prod.price || item.price || 0) * (item.quantity || 1) %>
+                            <%= prod.name || 'Product Item' %> - Qty: <%= item.qty || 1 %> - Price: ₹<%=
+                                        (prod.price || item.price || 0) * (item.qty || 1) %>
                         </li>
                         <% }) %>
                             <% } else { %>
@@ -66,8 +72,7 @@
 
     <footer>
         <p>&copy; <%= new Date().getFullYear() %> Techkart. All rights reserved.</p>
-    </footer>
-
+    </footer>    <script src="/script.js" defer></script>
 </body>
 
 </html>
