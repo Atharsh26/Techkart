@@ -27,11 +27,7 @@ const addOrderItems = async (req, res) => {
         <p>Thank you for shopping with ShopNest!</p>
       `;
 
-      await sendEmail({
-        email: req.user.email,
-        subject: 'ShopNest - Order Confirmation',
-        message
-      });
+      await sendEmail(req.user.email, 'ShopNest - Order Confirmation', message);
 
       res.status(201).json(createdOrder);
     }

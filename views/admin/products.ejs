@@ -5,7 +5,7 @@
     <script>(function(){try{var t=localStorage.getItem("techkart-theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Orders - Techkart Admin</title>
+    <title>Manage Products - Techkart Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
@@ -21,28 +21,30 @@
             <a href="/admin/dashboard">Dashboard</a>
             <a href="/admin/products">Products</a>
             <a href="/admin/products/add">Add Product</a>
+            <a href="/admin/orders">Orders</a>
             <a href="/admin/customers">Customers</a>
         </nav>
         <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode">&#127769;</button>
     </header>
 
     <main>
-        <h1>Customer Orders Management</h1>
+        <h1>Manage Products</h1>
+        <p><a href="/admin/products/add">+ Add New Product</a></p>
 
-        <!-- Orders Table -->
+        <!-- Products Table -->
         <table border="1" cellpadding="8" cellspacing="0">
             <thead>
                 <tr>
-                    <th>Order ID</th>
-                    <th>Customer Name</th>
-                    <th>Date</th>
-                    <th>Total Amount</th>
-                    <th>Payment Method</th>
-                    <th>Current Status</th>
-                    <th>Update Status</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Action</th>
                 </tr>
             </thead>
-            <tbody id="admin-orders-body">
+            <tbody id="admin-products-body">
                 <tr><td colspan="7">Loading...</td></tr>
             </tbody>
         </table>

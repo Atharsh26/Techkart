@@ -229,6 +229,12 @@ const filterProducts = (products, options = {}) => {
         maxPrice = ''
     } = options;
 
+    // Brand can be one name, or several from the checkbox filters, so
+    // normalize it to an array of lowercase names for matching.
+    const brandList = (Array.isArray(brand) ? brand : [brand])
+        .filter(Boolean)
+        .map((b) => b.toLowerCase());
+
     return products.filter((product) => {
         const productName = product.name?.toLowerCase() || '';
         const productBrand = product.brand?.toLowerCase() || '';
@@ -245,10 +251,10 @@ const filterProducts = (products, options = {}) => {
             !category ||
             productCategory === category.toLowerCase();
 
-        // Brand filter
+        // Brand filter (matches if the product's brand is any of the checked ones)
         const matchesBrand =
-            !brand ||
-            productBrand === brand.toLowerCase();
+            brandList.length === 0 ||
+            brandList.includes(productBrand);
 
         // Minimum price
         const matchesMinPrice =
@@ -598,6 +604,30 @@ const getAdminOrders = async () => {
 };
 
 
+// Delete a product
+const deleteAdminProduct = async (productId) => {
+    try {
+        const response = await fetch(`/api/products/${productId}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to delete product');
+        }
+
+        return data;
+
+    } catch (error) {
+        console.error('Delete product error:', error);
+        alert(error.message || 'Could not delete product');
+        return null;
+    }
+};
+
+
 // Update an order status
 const updateAdminOrderStatus = async (orderId, status) => {
     try {
@@ -941,6 +971,70 @@ if (adminLoginForm) {
 }
 
 // ===============================
+// ADMIN - ADD PRODUCT
+// (the form posts to /admin/products/add, but that's just the page route -
+// there's no server route that handles the POST, and a plain form submit
+// couldn't include the admin's JWT anyway. So, same pattern as the other
+// forms above, intercept the submit and call the protected API instead.)
+// ===============================
+
+const addProductForm = document.querySelector('form[action="/admin/products/add"]');
+
+if (addProductForm) {
+    addProductForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!isLoggedIn()) {
+            alert('Please login as an admin first');
+            window.location.href = '/admin/login';
+            return;
+        }
+
+        const name = document.getElementById('name').value.trim();
+        const brand = document.getElementById('brand').value.trim();
+        const category = document.getElementById('category').value;
+        const price = Number(document.getElementById('price').value);
+        const originalPrice = document.getElementById('originalPrice').value
+            ? Number(document.getElementById('originalPrice').value)
+            : undefined;
+        const stock = Number(document.getElementById('stock').value);
+        const imageUrl = document.getElementById('image').value.trim();
+        const description = document.getElementById('description').value.trim();
+
+        try {
+            const response = await fetch('/api/products', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    name,
+                    brand,
+                    category,
+                    price,
+                    originalPrice,
+                    stock,
+                    imageUrl,
+                    description
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.message || 'Failed to add product');
+                return;
+            }
+
+            alert('Product added successfully!');
+            window.location.href = '/admin/dashboard';
+
+        } catch (error) {
+            console.error('Add product error:', error);
+            alert('Something went wrong. Please try again.');
+        }
+    });
+}
+
+// ===============================
 // SMALL SHARED HELPERS FOR RENDERING
 // ===============================
 
@@ -1077,10 +1171,17 @@ document.addEventListener('submit', async (event) => {
     const catRadio = filterForm.querySelector(`input[name="category"][value="${categoryParam}"]`);
     if (catRadio) catRadio.checked = true;
 
+    const brandParams = params.getAll('brand');
+    brandParams.forEach((b) => {
+        const brandCheckbox = filterForm.querySelector(`input[name="brand"][value="${b}"]`);
+        if (brandCheckbox) brandCheckbox.checked = true;
+    });
+
     const allProducts = await getProducts();
     const filtered = filterProducts(allProducts, {
         search: params.get('search') || '',
         category: categoryParam,
+        brand: brandParams,
         minPrice: params.get('minPrice') || '',
         maxPrice: params.get('maxPrice') || ''
     });
@@ -1315,6 +1416,44 @@ document.addEventListener('submit', async (event) => {
             <td>-</td>
             <td>-</td>
         </tr>`).join('') : '<tr><td colspan="6">No customers registered yet.</td></tr>';
+})();
+
+// ===============================
+// ADMIN PRODUCTS - render + delete
+// ===============================
+(async function renderAdminProducts() {
+    const body = document.getElementById('admin-products-body');
+    if (!body) return; // not on the manage-products page
+
+    async function draw() {
+        const products = await getProducts();
+        body.innerHTML = products.length ? products.map(p => `
+            <tr>
+                <td><img src="${escapeHtml(p.imageUrl) || '/images/default-gadget.png'}" alt="${escapeHtml(p.name)}" width="50"></td>
+                <td>${escapeHtml(p.name)}</td>
+                <td>${escapeHtml(p.brand || 'N/A')}</td>
+                <td>${escapeHtml(p.category)}</td>
+                <td>${formatMoney(p.price)}</td>
+                <td>${p.stock}</td>
+                <td>
+                    <button type="button" class="delete-product-btn" data-id="${p._id}">Delete</button>
+                </td>
+            </tr>`).join('') : '<tr><td colspan="7">No products in the catalog yet.</td></tr>';
+
+        body.querySelectorAll('.delete-product-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                const row = btn.closest('tr');
+                const productName = row.children[1].textContent;
+
+                if (!confirm(`Delete "${productName}"? This cannot be undone.`)) return;
+
+                const result = await deleteAdminProduct(id);
+                if (result) draw();
+            });
+        });
+    }
+    await draw();
 })();
 
 // ===============================

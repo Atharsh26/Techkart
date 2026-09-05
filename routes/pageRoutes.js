@@ -21,6 +21,7 @@ router.get('/order-success', (req, res) => res.render('user/order-success'));
 // --- Admin pages ---
 router.get('/admin/login', (req, res) => res.render('admin/login'));
 router.get('/admin/dashboard', (req, res) => res.render('admin/dashboard'));
+router.get('/admin/products', (req, res) => res.render('admin/products'));
 router.get('/admin/products/add', (req, res) => res.render('admin/add-product'));
 router.get('/admin/customers', (req, res) => res.render('admin/customers'));
 router.get('/admin/orders', (req, res) => res.render('admin/orders'));
