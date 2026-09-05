@@ -1035,6 +1035,89 @@ if (addProductForm) {
 }
 
 // ===============================
+// ADMIN - EDIT PRODUCT
+// Loads the existing product into the form (id comes from the URL,
+// e.g. /admin/products/edit/<id>), then PUTs the changes back on submit.
+// ===============================
+
+const editProductForm = document.getElementById('edit-product-form');
+
+if (editProductForm) {
+    const productId = window.location.pathname.split('/').filter(Boolean).pop();
+
+    (async function loadProductIntoForm() {
+        if (!isLoggedIn()) {
+            alert('Please login as an admin first');
+            window.location.href = '/admin/login';
+            return;
+        }
+
+        const product = await getProductById(productId);
+
+        if (!product) {
+            alert('Product not found');
+            window.location.href = '/admin/products';
+            return;
+        }
+
+        document.getElementById('name').value = product.name || '';
+        document.getElementById('brand').value = product.brand || '';
+        document.getElementById('category').value = product.category || '';
+        document.getElementById('price').value = product.price ?? '';
+        document.getElementById('originalPrice').value = product.originalPrice ?? '';
+        document.getElementById('stock').value = product.stock ?? '';
+        document.getElementById('image').value = product.imageUrl || '';
+        document.getElementById('description').value = product.description || '';
+    })();
+
+    editProductForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const name = document.getElementById('name').value.trim();
+        const brand = document.getElementById('brand').value.trim();
+        const category = document.getElementById('category').value;
+        const price = Number(document.getElementById('price').value);
+        const originalPrice = document.getElementById('originalPrice').value
+            ? Number(document.getElementById('originalPrice').value)
+            : undefined;
+        const stock = Number(document.getElementById('stock').value);
+        const imageUrl = document.getElementById('image').value.trim();
+        const description = document.getElementById('description').value.trim();
+
+        try {
+            const response = await fetch(`/api/products/${productId}`, {
+                method: 'PUT',
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    name,
+                    brand,
+                    category,
+                    price,
+                    originalPrice,
+                    stock,
+                    imageUrl,
+                    description
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.message || 'Failed to update product');
+                return;
+            }
+
+            alert('Product updated successfully!');
+            window.location.href = '/admin/products';
+
+        } catch (error) {
+            console.error('Update product error:', error);
+            alert('Something went wrong. Please try again.');
+        }
+    });
+}
+
+// ===============================
 // SMALL SHARED HELPERS FOR RENDERING
 // ===============================
 
@@ -1436,6 +1519,7 @@ document.addEventListener('submit', async (event) => {
                 <td>${formatMoney(p.price)}</td>
                 <td>${p.stock}</td>
                 <td>
+                    <a href="/admin/products/edit/${p._id}">Edit</a>
                     <button type="button" class="delete-product-btn" data-id="${p._id}">Delete</button>
                 </td>
             </tr>`).join('') : '<tr><td colspan="7">No products in the catalog yet.</td></tr>';

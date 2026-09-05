@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>(function(){try{var t=localStorage.getItem("techkart-theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product - Techkart Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+    <header>
+        <h2>Techkart Admin</h2>
+        <nav>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/products">Products</a>
+            <a href="/admin/products/add">Add Product</a>
+            <a href="/admin/orders">Orders</a>
+            <a href="/admin/customers">Customers</a>
+        </nav>
+        <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode">&#127769;</button>
+    </header>
+
+    <main>
+        <h1>Edit Gadget</h1>
+
+        <!-- productId is read from the URL by script.js, then used to fetch
+             the existing product and later to PUT the update back -->
+        <form id="edit-product-form">
+            <!-- Basic Information -->
+            <fieldset>
+                <legend>Product Details</legend>
+                <div>
+                    <label for="name">Product Name:</label>
+                    <input type="text" id="name" name="name" required
+                        placeholder="e.g. Sony WH-1000XM5">
+                </div>
+                <div>
+                    <label for="brand">Brand:</label>
+                    <input type="text" id="brand" name="brand" required placeholder="e.g. Sony, Apple">
+                </div>
+                <div>
+                    <label for="category">Category:</label>
+                    <select id="category" name="category" required>
+                        <option value="smartphones">Smartphones</option>
+                        <option value="laptops">Laptops</option>
+                        <option value="audio">Audio</option>
+                        <option value="wearables">Wearables</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="accessories">Accessories</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <!-- Pricing & Inventory -->
+            <fieldset>
+                <legend>Pricing & Inventory</legend>
+                <div>
+                    <label for="price">Selling Price (₹):</label>
+                    <input type="number" id="price" name="price" required placeholder="24999">
+                </div>
+                <div>
+                    <label for="originalPrice">Original Price / MRP (₹):</label>
+                    <input type="number" id="originalPrice" name="originalPrice" placeholder="29999">
+                </div>
+                <div>
+                    <label for="stock">Stock Quantity:</label>
+                    <input type="number" id="stock" name="stock" required min="0">
+                </div>
+            </fieldset>
+
+            <!-- Media & Description -->
+            <fieldset>
+                <legend>Media & Description</legend>
+                <div>
+                    <label for="image">Product Image URL:</label>
+                    <input type="url" id="image" name="image"
+                        placeholder="https://example.com/image.jpg">
+                </div>
+                <div>
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" rows="5"
+                        placeholder="Enter detailed product description..."></textarea>
+                </div>
+            </fieldset>
+
+            <button type="submit">Save Changes</button>
+            <a href="/admin/products">Cancel</a>
+        </form>
+    </main>    <script src="/script.js" defer></script>
+</body>
+
+</html>
