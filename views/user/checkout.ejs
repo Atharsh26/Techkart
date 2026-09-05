@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Techkart</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -21,16 +21,6 @@
 
     <main>
         <h1>Checkout</h1>
-
-        <% let itemsList=(typeof cart !=='undefined' && cart && cart.items) ? cart.items : []; let subtotal=0;
-            itemsList.forEach(item=> {
-            let pPrice = (item.productId && item.productId.price) ? item.productId.price : (item.price || 0);
-            subtotal += (pPrice * (item.quantity || 1));
-            });
-            let shippingFee = subtotal > 999 || subtotal === 0 ? 0 : 99;
-            let discount = (typeof couponDiscount !== 'undefined') ? couponDiscount : 0;
-            let finalTotal = Math.max(0, subtotal + shippingFee - discount);
-            %>
 
             <form action="/checkout" method="POST">
                 <!-- 1. Contact Information -->
@@ -98,25 +88,10 @@
                 <!-- 4. Order Summary -->
                 <fieldset>
                     <legend>Order Summary</legend>
-                    <ul>
-                        <% if (itemsList && itemsList.length> 0) { %>
-                            <% itemsList.forEach(item=> {
-                                let prod = item.productId || item;
-                                let itemPrice = prod.price || item.price || 0;
-                                %>
-                                <li>
-                                    <%= prod.name || 'Product' %> (Qty: <%= item.quantity || 1 %>) - ₹<%= itemPrice *
-                                                (item.quantity || 1) %>
-                                </li>
-                                <% }) %>
-                                    <% } %>
-                    </ul>
-                    <p>Subtotal: ₹<%= subtotal %>
-                    </p>
-                    <p>Shipping: <%= shippingFee===0 ? 'FREE' : '₹' + shippingFee %>
-                    </p>
-                    <h3>Total Amount: ₹<%= finalTotal %>
-                    </h3>
+                    <ul id="checkout-items"></ul>
+                    <p>Subtotal: ₹<span id="checkout-subtotal">0</span></p>
+                    <p>Shipping: <span id="checkout-shipping">₹0</span></p>
+                    <h3>Total Amount: ₹<span id="checkout-total">0</span></h3>
 
                     <div>
                         <input type="checkbox" id="terms" required checked>

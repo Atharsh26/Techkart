@@ -736,6 +736,9 @@ if (checkoutForm) {
 
         const totalAmount = subtotal + shippingFee;
 
+        const paymentMethodInput = document.querySelector('input[name="paymentMethod"]:checked');
+        const paymentId = paymentMethodInput ? paymentMethodInput.value : 'COD';
+
         // Create order data
         const orderData = {
             items: orderItems,
@@ -750,7 +753,7 @@ if (checkoutForm) {
                 country: 'India'
             },
 
-            paymentId: ''
+            paymentId
         };
 
         // Create order
@@ -892,3 +895,386 @@ async function loadMyOrders() {
 }
 
 loadMyOrders();
+
+// ===============================
+// ADMIN LOGIN (the existing loginForm handler above only
+// listens for form[action="/login"] - the admin login page
+// posts to /admin/login, so it needs its own handler)
+// ===============================
+
+const adminLoginForm = document.querySelector('form[action="/admin/login"]');
+
+if (adminLoginForm) {
+    adminLoginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.message || 'Login failed');
+                return;
+            }
+
+            if (data.role !== 'admin') {
+                alert('This account does not have admin access.');
+                return;
+            }
+
+            saveUserData(data);
+            window.location.href = '/admin/dashboard';
+
+        } catch (error) {
+            console.error('Admin login error:', error);
+            alert('Something went wrong. Please try again.');
+        }
+    });
+}
+
+// ===============================
+// SMALL SHARED HELPERS FOR RENDERING
+// ===============================
+
+function escapeHtml(str) {
+    return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function formatMoney(n) { return '₹' + Number(n || 0).toLocaleString('en-IN'); }
+
+function productCardHtml(p) {
+    const id = p._id || p.id;
+    return `
+    <div class="product-card">
+        <img src="${escapeHtml(p.imageUrl) || '/images/default-gadget.png'}" alt="${escapeHtml(p.name)}">
+        <p class="category">${escapeHtml(p.category)}</p>
+        <h3>${escapeHtml(p.name)}</h3>
+        <p class="brand">${escapeHtml(p.brand)}</p>
+        <p class="price">${formatMoney(p.price)}</p>
+        ${p.originalPrice ? `<p class="original-price"><del>${formatMoney(p.originalPrice)}</del></p>` : ''}
+        <div class="card-buttons">
+            <a href="/products/${id}">View Details</a>
+            <form action="/cart/add/${id}" method="POST">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit">Add to Cart</button>
+            </form>
+        </div>
+    </div>`;
+}
+
+// Add-to-cart forms are generated dynamically by the functions below, so we
+// use event delegation (same pattern as the cart update/remove handlers above)
+// rather than attaching a listener to each button individually.
+document.addEventListener('submit', async (event) => {
+    const addForm = event.target.closest('form[action^="/cart/add/"]');
+    if (!addForm) return;
+    event.preventDefault();
+
+    const productId = addForm.getAttribute('action').split('/').pop();
+    const qtyInput = addForm.querySelector('input[name="quantity"]');
+    const qty = qtyInput ? Number(qtyInput.value) || 1 : 1;
+
+    const result = await addProductToCart(productId, qty);
+    if (result) {
+        alert('Added to cart!');
+    }
+});
+
+// ===============================
+// HOME PAGE - render featured products
+// ===============================
+(async function renderHomeProducts() {
+    const grid = document.querySelector('.featured-products .product-grid');
+    if (!grid) return; // not on the home page
+
+    const products = await getProducts();
+    const featured = products.slice(0, 6);
+    grid.innerHTML = featured.length
+        ? featured.map(productCardHtml).join('')
+        : '<p>No products available at the moment.</p>';
+})();
+
+// ===============================
+// PRODUCTS CATALOG PAGE - render + filter
+// ===============================
+(async function renderProductsPage() {
+    const filterForm = document.querySelector('.filters-sidebar form[action="/products"]');
+    if (!filterForm) return; // not on the products page
+
+    const grid = document.querySelector('.products-section .product-grid');
+    const countEl = document.getElementById('product-count');
+    const params = new URLSearchParams(window.location.search);
+
+    // Pre-fill the filter form from the URL so it reflects the current filters
+    if (params.get('search')) filterForm.search.value = params.get('search');
+    if (params.get('minPrice')) filterForm.minPrice.value = params.get('minPrice');
+    if (params.get('maxPrice')) filterForm.maxPrice.value = params.get('maxPrice');
+    const categoryParam = params.get('category') || '';
+    const catRadio = filterForm.querySelector(`input[name="category"][value="${categoryParam}"]`);
+    if (catRadio) catRadio.checked = true;
+
+    const allProducts = await getProducts();
+    const filtered = filterProducts(allProducts, {
+        search: params.get('search') || '',
+        category: categoryParam,
+        minPrice: params.get('minPrice') || '',
+        maxPrice: params.get('maxPrice') || ''
+    });
+
+    if (countEl) countEl.textContent = filtered.length;
+    grid.innerHTML = filtered.length
+        ? filtered.map(productCardHtml).join('')
+        : '<p>No products found matching the criteria.</p>';
+})();
+
+// ===============================
+// PRODUCT DETAILS PAGE
+// ===============================
+(async function renderProductDetails() {
+    const container = document.getElementById('product-details-content');
+    if (!container) return; // not on the product details page
+
+    const id = window.location.pathname.split('/').filter(Boolean).pop();
+    const product = await getProductById(id);
+
+    if (!product) {
+        container.innerHTML = `<p>Product not found.</p><a href="/products">Back to Products</a>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <nav aria-label="breadcrumb">
+            <a href="/">Home</a> &gt; <a href="/products">Products</a> &gt; <span>${escapeHtml(product.name)}</span>
+        </nav>
+        <article class="product-details-container">
+            <div class="product-gallery">
+                <img id="main-product-img" src="${escapeHtml(product.imageUrl) || '/images/default-gadget.png'}" alt="${escapeHtml(product.name)}">
+            </div>
+            <div class="product-info">
+                <h1>${escapeHtml(product.name)}</h1>
+                <p class="brand">Brand: <strong>${escapeHtml(product.brand || 'N/A')}</strong></p>
+                <p class="category">Category: <strong>${escapeHtml(product.category)}</strong></p>
+                <p class="price">Price: <strong>${formatMoney(product.price)}</strong></p>
+                ${product.originalPrice ? `<p class="original-price">MRP: <del>${formatMoney(product.originalPrice)}</del></p>` : ''}
+                <p class="stock-status">Status: <strong>${product.stock > 0 ? 'In Stock' : 'Out of Stock'}</strong></p>
+
+                <form action="/cart/add/${product._id}" method="POST">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="${product.stock || 10}">
+                    <button type="submit" ${product.stock <= 0 ? 'disabled' : ''}>Add to Cart</button>
+                </form>
+
+                <div class="description-section">
+                    <h3>Description</h3>
+                    <p>${escapeHtml(product.description || 'No description available for this product.')}</p>
+                </div>
+
+                <div class="specifications-section">
+                    <h3>Specifications</h3>
+                    <table>
+                        <tbody>
+                            <tr><th>Brand</th><td>${escapeHtml(product.brand || 'N/A')}</td></tr>
+                            <tr><th>Category</th><td>${escapeHtml(product.category || 'N/A')}</td></tr>
+                            <tr><th>Warranty</th><td>1 Year Official Brand Warranty</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </article>`;
+})();
+
+// ===============================
+// CART PAGE - render items into #cart-page-content
+// (the update/remove submit handlers already defined above
+// keep working unchanged since we reuse the same form actions)
+// ===============================
+(async function renderCartPage() {
+    const content = document.getElementById('cart-page-content');
+    if (!content) return; // not on the cart page
+
+    async function draw() {
+        const cart = await getCart();
+        const items = (cart && cart.items) || [];
+
+        if (!items.length) {
+            content.innerHTML = `<p>Your cart is empty.</p><a href="/products">Explore Products</a>`;
+            return;
+        }
+
+        let subtotal = 0;
+        const rows = items.map(item => {
+            const p = item.productId || {};
+            const qty = item.qty || item.quantity || 1;
+            const price = p.price || item.price || 0;
+            subtotal += price * qty;
+            const pid = p._id || item.productId;
+            return `
+            <tr>
+                <td><img src="${escapeHtml(p.imageUrl) || '/images/default-gadget.png'}" alt="${escapeHtml(p.name)}" width="60"><strong>${escapeHtml(p.name || 'Gadget Item')}</strong></td>
+                <td>${formatMoney(price)}</td>
+                <td>
+                    <form action="/cart/update" method="POST">
+                        <input type="hidden" name="productId" value="${pid}">
+                        <input type="number" name="quantity" value="${qty}" min="1" max="10">
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+                <td>${formatMoney(price * qty)}</td>
+                <td>
+                    <form action="/cart/remove/${pid}" method="POST">
+                        <button type="submit">Remove</button>
+                    </form>
+                </td>
+            </tr>`;
+        }).join('');
+
+        const shippingFee = subtotal > 999 || subtotal === 0 ? 0 : 99;
+        const finalTotal = subtotal + shippingFee;
+
+        content.innerHTML = `
+            <div class="cart-container">
+                <table border="1" cellpadding="10" cellspacing="0">
+                    <thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Total</th><th>Action</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+                <aside class="cart-summary">
+                    <h2>Order Summary</h2>
+                    <p>Subtotal: <strong>${formatMoney(subtotal)}</strong></p>
+                    <p>Shipping: <strong>${shippingFee === 0 ? 'FREE' : formatMoney(shippingFee)}</strong></p>
+                    <hr>
+                    <h3>Grand Total: <strong>${formatMoney(finalTotal)}</strong></h3>
+                    <a href="/checkout">Proceed to Checkout</a><br><br>
+                    <a href="/products">Continue Shopping</a>
+                </aside>
+            </div>`;
+    }
+    await draw();
+})();
+
+// ===============================
+// CHECKOUT PAGE - fill in the order summary
+// (the checkoutForm submit handler above already reads the
+// live cart at submit time, this just displays it up front)
+// ===============================
+(async function renderCheckoutSummary() {
+    const itemsList = document.getElementById('checkout-items');
+    if (!itemsList) return; // not on the checkout page
+
+    const cart = await getCart();
+    const items = (cart && cart.items) || [];
+
+    if (!items.length) {
+        document.querySelector('form[action="/checkout"]').innerHTML =
+            '<p>Your cart is empty. <a href="/products">Go shopping</a></p>';
+        return;
+    }
+
+    let subtotal = 0;
+    itemsList.innerHTML = items.map(item => {
+        const p = item.productId || {};
+        const qty = item.qty || item.quantity || 1;
+        const price = p.price || item.price || 0;
+        subtotal += price * qty;
+        return `<li>${escapeHtml(p.name || 'Product')} (Qty: ${qty}) - ${formatMoney(price * qty)}</li>`;
+    }).join('');
+
+    const shippingFee = subtotal > 999 || subtotal === 0 ? 0 : 99;
+    document.getElementById('checkout-subtotal').textContent = subtotal.toLocaleString('en-IN');
+    document.getElementById('checkout-shipping').textContent = shippingFee === 0 ? 'FREE' : formatMoney(shippingFee);
+    document.getElementById('checkout-total').textContent = (subtotal + shippingFee).toLocaleString('en-IN');
+})();
+
+// ===============================
+// ADMIN DASHBOARD
+// ===============================
+(async function renderAdminDashboard() {
+    const revenueEl = document.getElementById('kpi-revenue');
+    if (!revenueEl) return; // not on the admin dashboard page
+
+    const stats = await getAdminDashboard();
+    if (stats) {
+        document.getElementById('kpi-revenue').textContent = Number(stats.totalRevenue || 0).toLocaleString('en-IN');
+        document.getElementById('kpi-orders').textContent = stats.orderCount || 0;
+        document.getElementById('kpi-products').textContent = stats.productCount || 0;
+        document.getElementById('kpi-customers').textContent = stats.userCount || 0;
+    }
+
+    const orders = await getAdminOrders();
+    const body = document.getElementById('recent-orders-body');
+    const recent = (orders || []).slice(0, 5);
+    body.innerHTML = recent.length ? recent.map(ord => `
+        <tr>
+            <td>${ord._id}</td>
+            <td>${escapeHtml((ord.address && ord.address.fullName) || (ord.userId && ord.userId.name) || 'Customer')}</td>
+            <td>${formatMoney(ord.totalAmount)}</td>
+            <td>${escapeHtml(ord.paymentId || 'Online')}</td>
+            <td>${escapeHtml(ord.status || 'Processing')}</td>
+            <td><a href="/admin/orders">Manage</a></td>
+        </tr>`).join('') : '<tr><td colspan="6">No recent orders.</td></tr>';
+})();
+
+// ===============================
+// ADMIN CUSTOMERS
+// ===============================
+(async function renderAdminCustomers() {
+    const body = document.getElementById('customers-body');
+    if (!body) return; // not on the customers page
+
+    const customers = await getAdminCustomers();
+    body.innerHTML = customers.length ? customers.map(c => `
+        <tr>
+            <td>${escapeHtml(c.name)}</td>
+            <td>${escapeHtml(c.email)}</td>
+            <td>${escapeHtml(c.phone || 'N/A')}</td>
+            <td>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ''}</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>`).join('') : '<tr><td colspan="6">No customers registered yet.</td></tr>';
+})();
+
+// ===============================
+// ADMIN ORDERS - render + status update
+// ===============================
+(async function renderAdminOrders() {
+    const body = document.getElementById('admin-orders-body');
+    if (!body) return; // not on the admin orders page
+
+    const statuses = ['Processing', 'Shipped', 'Delivered', 'Cancelled'];
+
+    async function draw() {
+        const orders = await getAdminOrders();
+        body.innerHTML = orders.length ? orders.map(ord => `
+            <tr>
+                <td>${ord._id}</td>
+                <td>${escapeHtml((ord.address && ord.address.fullName) || (ord.userId && ord.userId.name) || 'Customer')}</td>
+                <td>${ord.createdAt ? new Date(ord.createdAt).toLocaleDateString() : ''}</td>
+                <td>${formatMoney(ord.totalAmount)}</td>
+                <td>${escapeHtml(ord.paymentId || 'Online')}</td>
+                <td>${escapeHtml(ord.status || 'Processing')}</td>
+                <td>
+                    <select class="status-select" data-id="${ord._id}">
+                        ${statuses.map(s => `<option value="${s}" ${ord.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                    </select>
+                    <button type="button" class="update-status-btn" data-id="${ord._id}">Update</button>
+                </td>
+            </tr>`).join('') : '<tr><td colspan="7">No orders recorded in the system.</td></tr>';
+
+        body.querySelectorAll('.update-status-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                const status = body.querySelector(`.status-select[data-id="${id}"]`).value;
+                const result = await updateAdminOrderStatus(id, status);
+                if (result) draw();
+            });
+        });
+    }
+    await draw();
+})();

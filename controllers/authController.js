@@ -23,7 +23,7 @@ const registerUser = async (req, res) => {
         if (user) {
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-            const message = 'Your OTP for ShopFusion is: ${otp}';
+            const message = `Your OTP for ShopFusion is: ${otp}`;
 
             await sendEmail(email, 'Welcome to ShopFusion - Your OTP for Registration', message);
 
@@ -32,7 +32,7 @@ const registerUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                token: generateToken(User._id)
+                token: generateToken(user._id)
             });
 
         }

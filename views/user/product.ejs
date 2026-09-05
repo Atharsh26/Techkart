@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Products - Techkart</title>
-    <!-- rel="stylesheet" href="/css/style.css"> -->
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -48,46 +48,38 @@
                     <!-- Search Filter -->
                     <div class="filter-group">
                         <label for="search">Search:</label>
-                        <input type="text" id="search" name="search" placeholder="Search products..."
-                            value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+                        <input type="text" id="search" name="search" placeholder="Search products...">
                     </div>
 
                     <!-- Category Filter -->
                     <div class="filter-group">
                         <h3>Category</h3>
                         <div>
-                            <input type="radio" id="cat-all" name="category" value="" <%=(!locals.currentCategory ||
-                                currentCategory==='' ) ? 'checked' : '' %>>
+                            <input type="radio" id="cat-all" name="category" value="" checked>
                             <label for="cat-all">All Categories</label>
                         </div>
                         <div>
-                            <input type="radio" id="cat-smartphones" name="category" value="smartphones"
-                                <%=(locals.currentCategory==='smartphones' ) ? 'checked' : '' %>>
+                            <input type="radio" id="cat-smartphones" name="category" value="smartphones">
                             <label for="cat-smartphones">Smartphones</label>
                         </div>
                         <div>
-                            <input type="radio" id="cat-laptops" name="category" value="laptops"
-                                <%=(locals.currentCategory==='laptops' ) ? 'checked' : '' %>>
+                            <input type="radio" id="cat-laptops" name="category" value="laptops">
                             <label for="cat-laptops">Laptops</label>
                         </div>
                         <div>
-                            <input type="radio" id="cat-audio" name="category" value="audio"
-                                <%=(locals.currentCategory==='audio' ) ? 'checked' : '' %>>
+                            <input type="radio" id="cat-audio" name="category" value="audio">
                             <label for="cat-audio">Audio</label>
                         </div>
                         <div>
-                            <input type="radio" id="cat-wearables" name="category" value="wearables"
-                                <%=(locals.currentCategory==='wearables' ) ? 'checked' : '' %>>
+                            <input type="radio" id="cat-wearables" name="category" value="wearables">
                             <label for="cat-wearables">Wearables</label>
                         </div>
                         <div>
-                            <input type="radio" id="cat-gaming" name="category" value="gaming"
-                                <%=(locals.currentCategory==='gaming' ) ? 'checked' : '' %>>
+                            <input type="radio" id="cat-gaming" name="category" value="gaming">
                             <label for="cat-gaming">Gaming</label>
                         </div>
                         <div>
-                            <input type="radio" id="cat-accessories" name="category" value="accessories"
-                                <%=(locals.currentCategory==='accessories' ) ? 'checked' : '' %>>
+                            <input type="radio" id="cat-accessories" name="category" value="accessories">
                             <label for="cat-accessories">Accessories</label>
                         </div>
                     </div>
@@ -113,11 +105,9 @@
                     <div class="filter-group">
                         <h3>Price Range</h3>
                         <label for="minPrice">Min Price:</label>
-                        <input type="number" id="minPrice" name="minPrice" placeholder="0"
-                            value="<%= typeof minPrice !== 'undefined' ? minPrice : '' %>">
+                        <input type="number" id="minPrice" name="minPrice" placeholder="0">
                         <label for="maxPrice">Max Price:</label>
-                        <input type="number" id="maxPrice" name="maxPrice" placeholder="100000"
-                            value="<%= typeof maxPrice !== 'undefined' ? maxPrice : '' %>">
+                        <input type="number" id="maxPrice" name="maxPrice" placeholder="100000">
                     </div>
 
                     <button type="submit">Apply Filters</button>
@@ -129,40 +119,12 @@
             <section class="products-section">
                 <!-- Sorting Bar -->
                 <div class="sorting-bar">
-                    <p>Total Products: <%= (typeof products !=='undefined' && products) ? products.length : 0 %>
-                    </p>
+                    <p>Total Products: <span id="product-count">0</span></p>
                 </div>
 
                 <div class="product-grid">
-                    <% if (typeof products !=='undefined' && products && products.length> 0) { %>
-                        <% products.forEach(product=> { %>
-                            <div class="product-card">
-                                <img src="<%= product.image || '/images/default-gadget.png' %>"
-                                    alt="<%= product.name %>">
-                                <h3>
-                                    <%= product.name %>
-                                </h3>
-                                <p>Brand: <%= product.brand %>
-                                </p>
-                                <p>Category: <%= product.category %>
-                                </p>
-                                <p>Price: ₹<%= product.price %>
-                                </p>
-                                <% if (product.originalPrice) { %>
-                                    <p>MRP: <del>₹<%= product.originalPrice %></del></p>
-                                    <% } %>
-                                        <div>
-                                            <a href="/products/<%= product._id || product.id %>">View Details</a>
-                                            <form action="/cart/add/<%= product._id || product.id %>" method="POST">
-                                                <input type="hidden" name="quantity" value="1">
-                                                <button type="submit">Add to Cart</button>
-                                            </form>
-                                        </div>
-                            </div>
-                            <% }) %>
-                                <% } else { %>
-                                    <p>No products found matching the criteria.</p>
-                                    <% } %>
+                    <p>Loading products...</p>
+                </div>
                 </div>
             </section>
         </div>

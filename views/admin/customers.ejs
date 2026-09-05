@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Directory - Techkart Admin</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -33,34 +33,8 @@
                     <th>Total Spent</th>
                 </tr>
             </thead>
-            <tbody>
-                <% if (typeof customers !=='undefined' && customers && customers.length> 0) { %>
-                    <% customers.forEach(cust=> { %>
-                        <tr>
-                            <td>
-                                <%= cust.name %>
-                            </td>
-                            <td>
-                                <%= cust.email %>
-                            </td>
-                            <td>
-                                <%= cust.phone || 'N/A' %>
-                            </td>
-                            <td>
-                                <%= cust.createdAt ? new Date(cust.createdAt).toLocaleDateString() : '' %>
-                            </td>
-                            <td>
-                                <%= cust.ordersCount || 0 %>
-                            </td>
-                            <td>₹<%= cust.totalSpent || 0 %>
-                            </td>
-                        </tr>
-                        <% }) %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6">No customers registered yet.</td>
-                                </tr>
-                                <% } %>
+            <tbody id="customers-body">
+                <tr><td colspan="6">Loading...</td></tr>
             </tbody>
         </table>
     </main>

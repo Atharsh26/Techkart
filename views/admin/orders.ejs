@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Orders - Techkart Admin</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -35,51 +35,8 @@
                     <th>Update Status</th>
                 </tr>
             </thead>
-            <tbody>
-                <% if (typeof orders !=='undefined' && orders && orders.length> 0) { %>
-                    <% orders.forEach(ord=> { %>
-                        <tr>
-                            <td>
-                                <%= ord._id %>
-                            </td>
-                            <td>
-                                <%= (ord.shippingAddress && ord.shippingAddress.fullName) ? ord.shippingAddress.fullName
-                                    : 'Customer' %>
-                            </td>
-                            <td>
-                                <%= ord.createdAt ? new Date(ord.createdAt).toLocaleDateString() : '' %>
-                            </td>
-                            <td>₹<%= ord.totalAmount %>
-                            </td>
-                            <td>
-                                <%= ord.paymentMethod || 'Online' %>
-                            </td>
-                            <td>
-                                <%= ord.status || 'Processing' %>
-                            </td>
-                            <td>
-                                <form action="/admin/orders/update-status" method="POST">
-                                    <input type="hidden" name="orderId" value="<%= ord._id %>">
-                                    <select name="status">
-                                        <option value="Processing" <%=ord.status==='Processing' ? 'selected' : '' %>
-                                            >Processing</option>
-                                        <option value="Shipped" <%=ord.status==='Shipped' ? 'selected' : '' %>>Shipped
-                                        </option>
-                                        <option value="Delivered" <%=ord.status==='Delivered' ? 'selected' : '' %>
-                                            >Delivered</option>
-                                        <option value="Cancelled" <%=ord.status==='Cancelled' ? 'selected' : '' %>
-                                            >Cancelled</option>
-                                    </select>
-                                    <button type="submit">Update</button>
-                                </form>
-                            </td>
-                        </tr>
-                        <% }) %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="7">No orders recorded in the system.</td>
-                                </tr>
-                                <% } %>
+            <tbody id="admin-orders-body">
+                <tr><td colspan="7">Loading...</td></tr>
             </tbody>
         </table>
     </main>

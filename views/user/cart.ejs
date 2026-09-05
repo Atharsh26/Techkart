@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart - Techkart</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -27,97 +27,9 @@
     <main>
         <h1>Your Shopping Cart</h1>
 
-        <% let itemsList=(typeof cart !=='undefined' && cart && cart.items) ? cart.items : []; let subtotal=0;
-            itemsList.forEach(item=> {
-            let pPrice = (item.productId && item.productId.price) ? item.productId.price : (item.price || 0);
-            subtotal += (pPrice * (item.quantity || 1));
-            });
-            let shippingFee = subtotal > 999 || subtotal === 0 ? 0 : 99;
-            let discount = (typeof couponDiscount !== 'undefined') ? couponDiscount : 0;
-            let finalTotal = Math.max(0, subtotal + shippingFee - discount);
-            %>
-
-            <% if (itemsList && itemsList.length> 0) { %>
-                <div class="cart-container">
-                    <!-- Cart Items Table -->
-                    <table border="1" cellpadding="10" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% itemsList.forEach(item=> {
-                                let prod = item.productId || item;
-                                let itemPrice = prod.price || item.price || 0;
-                                let itemQty = item.quantity || 1;
-                                let itemTotal = itemPrice * itemQty;
-                                let prodId = prod._id || prod.id || item.productId;
-                                %>
-                                <tr>
-                                    <td>
-                                        <img src="<%= prod.image || '/images/default-gadget.png' %>"
-                                            alt="<%= prod.name %>" width="60">
-                                        <strong>
-                                            <%= prod.name || 'Gadget Item' %>
-                                        </strong>
-                                    </td>
-                                    <td>₹<%= itemPrice %>
-                                    </td>
-                                    <td>
-                                        <form action="/cart/update" method="POST">
-                                            <input type="hidden" name="productId" value="<%= prodId %>">
-                                            <input type="number" name="quantity" value="<%= itemQty %>" min="1"
-                                                max="10">
-                                            <button type="submit">Update</button>
-                                        </form>
-                                    </td>
-                                    <td>₹<%= itemTotal %>
-                                    </td>
-                                    <td>
-                                        <form action="/cart/remove/<%= prodId %>" method="POST">
-                                            <button type="submit">Remove</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                        </tbody>
-                    </table>
-
-                    <!-- Cart Summary -->
-                    <aside class="cart-summary">
-                        <h2>Order Summary</h2>
-
-                        <!-- Promo Code Form -->
-                        <form action="/cart/apply-coupon" method="POST">
-                            <label for="coupon">Coupon Code:</label>
-                            <input type="text" id="coupon" name="coupon" placeholder="Enter coupon">
-                            <button type="submit">Apply</button>
-                        </form>
-
-                        <p>Subtotal: <strong>₹<%= subtotal %></strong></p>
-                        <p>Shipping: <strong>
-                                <%= shippingFee===0 ? 'FREE' : '₹' + shippingFee %>
-                            </strong></p>
-                        <% if (discount> 0) { %>
-                            <p>Discount: <strong>-₹<%= discount %></strong></p>
-                            <% } %>
-                                <hr>
-                                <h3>Grand Total: <strong>₹<%= finalTotal %></strong></h3>
-
-                                <a href="/checkout">Proceed to Checkout</a>
-                                <br><br>
-                                <a href="/products">Continue Shopping</a>
-                    </aside>
-                </div>
-                <% } else { %>
-                    <p>Your cart is empty.</p>
-                    <a href="/products">Explore Products</a>
-                    <% } %>
+        <div id="cart-page-content">
+            <p>Loading cart...</p>
+        </div>
     </main>
 
     <!-- Footer -->

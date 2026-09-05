@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Techkart - E-Commerce Gadget Store</title>
-    <!-- rel="stylesheet" href="/css/style.css"> -->
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -99,37 +99,7 @@
             <a href="/products">View All</a>
 
             <div class="product-grid">
-                <% if (typeof products !=='undefined' && products && products.length> 0) { %>
-                    <% products.forEach(product=> { %>
-                        <div class="product-card">
-                            <img src="<%= product.image || '/images/default-gadget.png' %>" alt="<%= product.name %>">
-                            <p class="category">
-                                <%= product.category %>
-                            </p>
-                            <h3>
-                                <%= product.name %>
-                            </h3>
-                            <p class="brand">
-                                <%= product.brand %>
-                            </p>
-                            <p class="price">₹<%= product.price %>
-                            </p>
-                            <% if (product.originalPrice) { %>
-                                <p class="original-price"><del>₹<%= product.originalPrice %></del></p>
-                                <% } %>
-
-                                    <div class="card-buttons">
-                                        <a href="/products/<%= product._id || product.id %>">View Details</a>
-                                        <form action="/cart/add/<%= product._id || product.id %>" method="POST">
-                                            <input type="hidden" name="quantity" value="1">
-                                            <button type="submit">Add to Cart</button>
-                                        </form>
-                                    </div>
-                        </div>
-                        <% }) %>
-                            <% } else { %>
-                                <p>No products available at the moment.</p>
-                                <% } %>
+                <p>Loading products...</p>
             </div>
         </section>
 

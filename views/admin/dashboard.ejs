@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Techkart</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -32,26 +32,19 @@
         <section class="kpi-metrics">
             <div>
                 <h3>Total Revenue</h3>
-                <p>₹<%= (typeof totalRevenue !=='undefined' ) ? totalRevenue : '0' %>
-                </p>
+                <p>₹<span id="kpi-revenue">0</span></p>
             </div>
             <div>
                 <h3>Total Orders</h3>
-                <p>
-                    <%= (typeof totalOrders !=='undefined' ) ? totalOrders : '0' %>
-                </p>
+                <p><span id="kpi-orders">0</span></p>
             </div>
             <div>
                 <h3>Total Products</h3>
-                <p>
-                    <%= (typeof totalProducts !=='undefined' ) ? totalProducts : '0' %>
-                </p>
+                <p><span id="kpi-products">0</span></p>
             </div>
             <div>
                 <h3>Registered Customers</h3>
-                <p>
-                    <%= (typeof totalCustomers !=='undefined' ) ? totalCustomers : '0' %>
-                </p>
+                <p><span id="kpi-customers">0</span></p>
             </div>
         </section>
 
@@ -69,33 +62,8 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <% if (typeof recentOrders !=='undefined' && recentOrders && recentOrders.length> 0) { %>
-                        <% recentOrders.forEach(ord=> { %>
-                            <tr>
-                                <td>
-                                    <%= ord._id %>
-                                </td>
-                                <td>
-                                    <%= (ord.shippingAddress && ord.shippingAddress.fullName) ?
-                                        ord.shippingAddress.fullName : 'Customer' %>
-                                </td>
-                                <td>₹<%= ord.totalAmount %>
-                                </td>
-                                <td>
-                                    <%= ord.paymentMethod %>
-                                </td>
-                                <td>
-                                    <%= ord.status %>
-                                </td>
-                                <td><a href="/admin/orders">Manage</a></td>
-                            </tr>
-                            <% }) %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="6">No recent orders.</td>
-                                    </tr>
-                                    <% } %>
+                <tbody id="recent-orders-body">
+                    <tr><td colspan="6">Loading...</td></tr>
                 </tbody>
             </table>
         </section>
